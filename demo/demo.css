@@ -1,0 +1,17 @@
+html {
+    background: url(https://x.boardgamearena.net/data/themereleases/221026-1000/img/layout/back-main.jpg), #f2f2f2;
+}
+
+#game-table {
+    min-height: 100px;
+    background: rgba(255, 0, 0, 0.15);
+}
+
+.box {
+    background: rgba(255, 255, 255, 0.4);
+    display: inline-block;
+    height: 100px;
+    width: 400px;
+    margin: 10px;
+    padding: 10px;
+}

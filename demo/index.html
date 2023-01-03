@@ -1,0 +1,28 @@
+<html>
+    <head>
+        <title>bga-zoom demo</title>
+        <script>
+            function define() {}
+        </script>
+        <link href="../bga-zoom.css" rel="stylesheet"></script>
+        <script src="../bga-zoom.js" type="text/javascript"></script>
+        <link href="./demo.css" rel="stylesheet"></script>
+        <script src="./manager.js" type="text/javascript"></script>
+    </head>
+    <body>
+        <h1>BGA Header</h1>
+
+        <div id="game-table">
+            Your table
+            
+            <button type="button" onclick="increaseBoxCount()">Increase box count</button>
+            <button type="button" onclick="decreaseBoxCount()">Decrease box count</button>
+        </div>
+
+        <h1>BGA Footer</h1>
+
+        <script>
+            initManager();
+        </script>
+    </body>
+</html>
