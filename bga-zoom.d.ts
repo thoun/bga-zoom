@@ -46,23 +46,38 @@ interface ZoomManagerSettings {
      * Options of the zoom controls.
      */
     zoomControls?: ZoomControls;
+    /**
+     * Function called when the zoom changes.
+     */
+    onZoomChange?: (zoom: number) => void;
+    /**
+     * Function called when the element dimensions changes, or after a zoom change.
+     * This function can be called a lot of times, don't forget to debounce it if used.
+     */
+    onDimensionsChange?: (zoom: number) => void;
 }
 declare const DEFAULT_ZOOM_LEVELS: number[];
 declare class ZoomManager {
     private settings;
-    zoom: number;
+    get zoom(): number;
+    private _zoom;
     private wrapper;
+    private zoomControls;
     private zoomOutButton;
     private zoomInButton;
     private zoomLevels;
     /**
+     * Place the settings.element in a zoom wrapper and init zoomControls.
+     *
      * @param settings: a `ZoomManagerSettings` object
      */
     constructor(settings: ZoomManagerSettings);
-    private wrapElement;
-    private setZoom;
+    setZoom(zoom?: number): void;
     private zoomOrDimensionChanged;
     zoomIn(): void;
     zoomOut(): void;
+    setZoomControlsColor(color: 'black' | 'white'): void;
+    private initZoomControls;
+    private wrapElement;
 }
 declare const define: any;

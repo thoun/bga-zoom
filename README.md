@@ -34,5 +34,8 @@ function (dojo, declare, debounce, gamegui, /*...,*/ bgaZoom) {
         this.zoomManager = new ZoomManager({
             element: document.getElementById('game-table'),
             localStorageZoomKey: 'mygame-zoom',
+            zoomControls: {
+                color: 'white',
+            },
         });
 ```

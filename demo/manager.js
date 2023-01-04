@@ -4,6 +4,8 @@ function initManager() {
     zoomManager = new ZoomManager({
         element: document.getElementById('game-table'),
         localStorageZoomKey: 'bga-zoom-demo-zoom',
+        onZoomChange: (zoom) => console.log('onZoomChange', zoom),
+        onDimensionsChange: (zoom) => console.log('onDimensionsChange', zoom),
     });
 
     for (let i=0; i<8; i++) {
@@ -23,4 +25,8 @@ function decreaseBoxCount() {
     }
 
     document.getElementsByClassName('box')[0].remove();
+}
+
+function setZoomControlsColor(color) {
+    zoomManager.setZoomControlsColor(color);
 }
