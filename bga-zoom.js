@@ -32,15 +32,24 @@ var ZoomManager = /** @class */ (function () {
             this.setZoom(this._zoom);
         }
         window.addEventListener('resize', function () { return _this.zoomOrDimensionChanged(); });
-        new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
+        if (window.ResizeObserver) {
+            new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
+        }
     }
     Object.defineProperty(ZoomManager.prototype, "zoom", {
+        /**
+         * Returns the zoom level
+         */
         get: function () {
             return this._zoom;
         },
         enumerable: false,
         configurable: true
     });
+    /**
+     * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
+     * @param zoom zool level
+     */
     ZoomManager.prototype.setZoom = function (zoom) {
         var _a, _b, _c, _d;
         if (zoom === void 0) { zoom = 1; }
@@ -55,12 +64,27 @@ var ZoomManager = /** @class */ (function () {
         (_d = (_c = this.settings).onZoomChange) === null || _d === void 0 ? void 0 : _d.call(_c, this._zoom);
         this.zoomOrDimensionChanged();
     };
+    /**
+     * Call this method for the browsers not supporting ResizeObserver, everytime the table height changes, if you know it.
+     * If the browsert is recent enough (>= Safari 13.1) it will just be ignored.
+     */
+    ZoomManager.prototype.manualHeightUpdate = function () {
+        if (!window.ResizeObserver) {
+            this.zoomOrDimensionChanged();
+        }
+    };
+    /**
+     * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     */
     ZoomManager.prototype.zoomOrDimensionChanged = function () {
         var _a, _b;
         this.settings.element.style.width = "".concat(this.wrapper.getBoundingClientRect().width / this._zoom, "px");
         this.wrapper.style.height = "".concat(this.settings.element.getBoundingClientRect().height, "px");
         (_b = (_a = this.settings).onDimensionsChange) === null || _b === void 0 ? void 0 : _b.call(_a, this._zoom);
     };
+    /**
+     * Simulates a click on the Zoom-in button.
+     */
     ZoomManager.prototype.zoomIn = function () {
         if (this._zoom === this.zoomLevels[this.zoomLevels.length - 1]) {
             return;
@@ -68,6 +92,9 @@ var ZoomManager = /** @class */ (function () {
         var newIndex = this.zoomLevels.indexOf(this._zoom) + 1;
         this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
     };
+    /**
+     * Simulates a click on the Zoom-out button.
+     */
     ZoomManager.prototype.zoomOut = function () {
         if (this._zoom === this.zoomLevels[0]) {
             return;
@@ -75,11 +102,18 @@ var ZoomManager = /** @class */ (function () {
         var newIndex = this.zoomLevels.indexOf(this._zoom) - 1;
         this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
     };
+    /**
+     * Changes the color of the zoom controls.
+     */
     ZoomManager.prototype.setZoomControlsColor = function (color) {
         if (this.zoomControls) {
             this.zoomControls.dataset.color = color;
         }
     };
+    /**
+     * Set-up the zoom controls
+     * @param settings a `ZoomManagerSettings` object.
+     */
     ZoomManager.prototype.initZoomControls = function (settings) {
         var _this = this;
         var _a, _b, _c, _d, _e, _f;
@@ -109,6 +143,11 @@ var ZoomManager = /** @class */ (function () {
         this.wrapper.appendChild(this.zoomControls);
         this.setZoomControlsColor((_f = (_e = settings.zoomControls) === null || _e === void 0 ? void 0 : _e.color) !== null && _f !== void 0 ? _f : 'black');
     };
+    /**
+     * Wraps an element around an existing DOM element
+     * @param wrapper the wrapper element
+     * @param element the existing element
+     */
     ZoomManager.prototype.wrapElement = function (wrapper, element) {
         element.parentNode.insertBefore(wrapper, element);
         wrapper.appendChild(element);

@@ -71,6 +71,9 @@ interface ZoomManagerSettings {
 const DEFAULT_ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
 
 class ZoomManager {
+    /**
+     * Returns the zoom level
+     */
     public get zoom(): number {
         return this._zoom;
     }
@@ -118,9 +121,15 @@ class ZoomManager {
         }
 
         window.addEventListener('resize', () => this.zoomOrDimensionChanged());
-        new ResizeObserver(() => this.zoomOrDimensionChanged()).observe(settings.element);
+        if (window.ResizeObserver) {
+            new ResizeObserver(() => this.zoomOrDimensionChanged()).observe(settings.element);
+        }
     }
 
+    /**
+     * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
+     * @param zoom zool level
+     */
     public setZoom(zoom: number = 1) {
         this._zoom = zoom;
         if (this.settings.localStorageZoomKey) {
@@ -137,6 +146,19 @@ class ZoomManager {
         this.zoomOrDimensionChanged();
     }
 
+    /**
+     * Call this method for the browsers not supporting ResizeObserver, everytime the table height changes, if you know it.
+     * If the browsert is recent enough (>= Safari 13.1) it will just be ignored.
+     */
+    public manualHeightUpdate() {
+        if (!window.ResizeObserver) {
+            this.zoomOrDimensionChanged();
+        }
+    }
+
+    /**
+     * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     */
     private zoomOrDimensionChanged() {
         this.settings.element.style.width = `${this.wrapper.getBoundingClientRect().width / this._zoom}px`;
         this.wrapper.style.height = `${this.settings.element.getBoundingClientRect().height}px`;
@@ -144,6 +166,9 @@ class ZoomManager {
         this.settings.onDimensionsChange?.(this._zoom);
     }
 
+    /**
+     * Simulates a click on the Zoom-in button.
+     */
     public zoomIn() {
         if (this._zoom === this.zoomLevels[this.zoomLevels.length - 1]) {
             return;
@@ -152,6 +177,9 @@ class ZoomManager {
         this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
     }
 
+    /**
+     * Simulates a click on the Zoom-out button.
+     */
     public zoomOut() {
         if (this._zoom === this.zoomLevels[0]) {
             return;
@@ -160,12 +188,19 @@ class ZoomManager {
         this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
     }
 
+    /**
+     * Changes the color of the zoom controls.
+     */
     public setZoomControlsColor(color: 'black' | 'white') {
         if (this.zoomControls) {
             this.zoomControls.dataset.color = color;
         }
     }
     
+    /**
+     * Set-up the zoom controls
+     * @param settings a `ZoomManagerSettings` object.
+     */
     private initZoomControls(settings: ZoomManagerSettings) {
         this.zoomControls = document.createElement('div');
         this.zoomControls.id = 'bga-zoom-controls';
@@ -195,6 +230,11 @@ class ZoomManager {
         this.setZoomControlsColor(settings.zoomControls?.color ?? 'black');
     }
 
+    /**
+     * Wraps an element around an existing DOM element
+     * @param wrapper the wrapper element
+     * @param element the existing element
+     */
     private wrapElement(wrapper: HTMLElement, element: HTMLElement) {
         element.parentNode.insertBefore(wrapper, element);
         wrapper.appendChild(element);

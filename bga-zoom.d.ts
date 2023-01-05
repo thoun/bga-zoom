@@ -59,6 +59,9 @@ interface ZoomManagerSettings {
 declare const DEFAULT_ZOOM_LEVELS: number[];
 declare class ZoomManager {
     private settings;
+    /**
+     * Returns the zoom level
+     */
     get zoom(): number;
     private _zoom;
     private wrapper;
@@ -72,12 +75,42 @@ declare class ZoomManager {
      * @param settings: a `ZoomManagerSettings` object
      */
     constructor(settings: ZoomManagerSettings);
+    /**
+     * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
+     * @param zoom zool level
+     */
     setZoom(zoom?: number): void;
+    /**
+     * Call this method for the browsers not supporting ResizeObserver, everytime the table height changes, if you know it.
+     * If the browsert is recent enough (>= Safari 13.1) it will just be ignored.
+     */
+    manualHeightUpdate(): void;
+    /**
+     * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     */
     private zoomOrDimensionChanged;
+    /**
+     * Simulates a click on the Zoom-in button.
+     */
     zoomIn(): void;
+    /**
+     * Simulates a click on the Zoom-out button.
+     */
     zoomOut(): void;
+    /**
+     * Changes the color of the zoom controls.
+     */
     setZoomControlsColor(color: 'black' | 'white'): void;
+    /**
+     * Set-up the zoom controls
+     * @param settings a `ZoomManagerSettings` object.
+     */
     private initZoomControls;
+    /**
+     * Wraps an element around an existing DOM element
+     * @param wrapper the wrapper element
+     * @param element the existing element
+     */
     private wrapElement;
 }
 declare const define: any;
