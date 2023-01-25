@@ -7,7 +7,7 @@ var ZoomManager = /** @class */ (function () {
      */
     function ZoomManager(settings) {
         var _this = this;
-        var _a, _b, _c;
+        var _a, _b, _c, _d;
         this.settings = settings;
         if (!settings.element) {
             throw new DOMException('You need to set the element to wrap in the zoom element');
@@ -31,9 +31,18 @@ var ZoomManager = /** @class */ (function () {
         if (this._zoom !== 1) {
             this.setZoom(this._zoom);
         }
-        window.addEventListener('resize', function () { return _this.zoomOrDimensionChanged(); });
+        window.addEventListener('resize', function () {
+            var _a;
+            _this.zoomOrDimensionChanged();
+            if ((_a = _this.settings.autoZoom) === null || _a === void 0 ? void 0 : _a.expectedWidth) {
+                _this.setAutoZoom();
+            }
+        });
         if (window.ResizeObserver) {
             new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
+        }
+        if ((_d = this.settings.autoZoom) === null || _d === void 0 ? void 0 : _d.expectedWidth) {
+            this.setAutoZoom();
         }
     }
     Object.defineProperty(ZoomManager.prototype, "zoom", {
@@ -46,6 +55,28 @@ var ZoomManager = /** @class */ (function () {
         enumerable: false,
         configurable: true
     });
+    ZoomManager.prototype.setAutoZoom = function () {
+        var _this = this;
+        var _a, _b, _c;
+        var zoomWrapperWidth = document.getElementById('bga-zoom-wrapper').clientWidth;
+        if (!zoomWrapperWidth) {
+            setTimeout(function () { return _this.setAutoZoom(); }, 200);
+            return;
+        }
+        var expectedWidth = (_a = this.settings.autoZoom) === null || _a === void 0 ? void 0 : _a.expectedWidth;
+        var newZoom = this.zoom;
+        while (newZoom > this.zoomLevels[0] && newZoom > ((_c = (_b = this.settings.autoZoom) === null || _b === void 0 ? void 0 : _b.minZoomLevel) !== null && _c !== void 0 ? _c : 0) && zoomWrapperWidth / newZoom < expectedWidth) {
+            newZoom = this.zoomLevels[this.zoomLevels.indexOf(newZoom) - 1];
+        }
+        if (this._zoom == newZoom) {
+            if (this.settings.localStorageZoomKey) {
+                localStorage.setItem(this.settings.localStorageZoomKey, '' + this._zoom);
+            }
+        }
+        else {
+            this.setZoom(newZoom);
+        }
+    };
     /**
      * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
      * @param zoom zool level

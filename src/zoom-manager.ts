@@ -1,3 +1,6 @@
+/**
+ * Options of the zoom controls.
+ */
 interface ZoomControls {
     /**
      * Set the visibility of the default zoom controls.
@@ -28,6 +31,21 @@ interface ZoomControls {
     customZoomOutElement?: (element: HTMLButtonElement) => void;
 }
 
+/**
+ * Options of the auto zoom.
+ */
+interface AutoZoomSettings {
+    /**
+     * The expected width to be available.
+     */
+    expectedWidth: number;
+
+    /**
+     * The minimum zoom level allowed for auto zoom.
+     */
+    minZoomLevel?: number;
+}
+
 interface ZoomManagerSettings {
     /**
      * The element that can be zoomed in/out.
@@ -55,6 +73,11 @@ interface ZoomManagerSettings {
      * Options of the zoom controls.
      */
     zoomControls?: ZoomControls;
+
+    /**
+     * Options of the auto zoom. If provided, will automatically change the zoom when the window width changes so expectedWidth is available on the rescaled element.
+     */
+    autoZoom?: AutoZoomSettings;
 
     /**
      * Function called when the zoom changes.
@@ -120,9 +143,41 @@ class ZoomManager {
             this.setZoom(this._zoom);
         }
 
-        window.addEventListener('resize', () => this.zoomOrDimensionChanged());
+        window.addEventListener('resize', () => {
+            this.zoomOrDimensionChanged();
+            if (this.settings.autoZoom?.expectedWidth) {
+                this.setAutoZoom();
+            }
+        });
         if (window.ResizeObserver) {
             new ResizeObserver(() => this.zoomOrDimensionChanged()).observe(settings.element);
+        }
+
+        if (this.settings.autoZoom?.expectedWidth) {
+            this.setAutoZoom();
+        }
+    }
+
+    private setAutoZoom() {
+        const zoomWrapperWidth = document.getElementById('bga-zoom-wrapper').clientWidth;
+
+        if (!zoomWrapperWidth) {
+            setTimeout(() => this.setAutoZoom(), 200);
+            return;
+        }
+
+        const expectedWidth = this.settings.autoZoom?.expectedWidth;
+        let newZoom = this.zoom;
+        while (newZoom > this.zoomLevels[0] && newZoom > (this.settings.autoZoom?.minZoomLevel ?? 0) && zoomWrapperWidth/newZoom < expectedWidth) {
+            newZoom = this.zoomLevels[this.zoomLevels.indexOf(newZoom) - 1];
+        }
+
+        if (this._zoom == newZoom) {
+            if (this.settings.localStorageZoomKey) {
+                localStorage.setItem(this.settings.localStorageZoomKey, ''+this._zoom);
+            }
+        } else {
+            this.setZoom(newZoom);
         }
     }
 

@@ -4,6 +4,9 @@ function initManager() {
     zoomManager = new ZoomManager({
         element: document.getElementById('game-table'),
         localStorageZoomKey: 'bga-zoom-demo-zoom',
+        autoZoom: {
+            expectedWidth: 1500,
+        },
         onZoomChange: (zoom) => console.log('onZoomChange', zoom),
         onDimensionsChange: (zoom) => console.log('onDimensionsChange', zoom),
     });

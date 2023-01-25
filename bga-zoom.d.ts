@@ -1,3 +1,6 @@
+/**
+ * Options of the zoom controls.
+ */
 interface ZoomControls {
     /**
      * Set the visibility of the default zoom controls.
@@ -23,6 +26,19 @@ interface ZoomControls {
      */
     customZoomOutElement?: (element: HTMLButtonElement) => void;
 }
+/**
+ * Options of the auto zoom.
+ */
+interface AutoZoomSettings {
+    /**
+     * The expected width to be available.
+     */
+    expectedWidth: number;
+    /**
+     * The minimum zoom level allowed for auto zoom.
+     */
+    minZoomLevel?: number;
+}
 interface ZoomManagerSettings {
     /**
      * The element that can be zoomed in/out.
@@ -46,6 +62,10 @@ interface ZoomManagerSettings {
      * Options of the zoom controls.
      */
     zoomControls?: ZoomControls;
+    /**
+     * Options of the auto zoom. If provided, will automatically change the zoom when the window width changes so expectedWidth is available on the rescaled element.
+     */
+    autoZoom?: AutoZoomSettings;
     /**
      * Function called when the zoom changes.
      */
@@ -75,6 +95,7 @@ declare class ZoomManager {
      * @param settings: a `ZoomManagerSettings` object
      */
     constructor(settings: ZoomManagerSettings);
+    private setAutoZoom;
     /**
      * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
      * @param zoom zool level
