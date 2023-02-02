@@ -45,6 +45,10 @@ interface ZoomManagerSettings {
      */
     element: HTMLElement;
     /**
+     * Smooth transition when changing zoom level. Default true.
+     */
+    smooth: boolean;
+    /**
      * Default zoom, used at setup. If a zoom if stored in localStorage, the default zoom is ignored.
      */
     defaultZoom?: number;

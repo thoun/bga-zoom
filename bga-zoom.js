@@ -7,7 +7,7 @@ var ZoomManager = /** @class */ (function () {
      */
     function ZoomManager(settings) {
         var _this = this;
-        var _a, _b, _c, _d;
+        var _a, _b, _c, _d, _e;
         this.settings = settings;
         if (!settings.element) {
             throw new DOMException('You need to set the element to wrap in the zoom element');
@@ -25,7 +25,11 @@ var ZoomManager = /** @class */ (function () {
         this.wrapElement(this.wrapper, settings.element);
         this.wrapper.appendChild(settings.element);
         settings.element.classList.add('bga-zoom-inner');
-        if ((_c = (_b = settings.zoomControls) === null || _b === void 0 ? void 0 : _b.visible) !== null && _c !== void 0 ? _c : true) {
+        if ((_b = settings.smooth) !== null && _b !== void 0 ? _b : true) {
+            settings.element.dataset.smooth = 'true';
+            settings.element.addEventListener('transitionend', function () { return _this.zoomOrDimensionChanged(); });
+        }
+        if ((_d = (_c = settings.zoomControls) === null || _c === void 0 ? void 0 : _c.visible) !== null && _d !== void 0 ? _d : true) {
             this.initZoomControls(settings);
         }
         if (this._zoom !== 1) {
@@ -41,7 +45,7 @@ var ZoomManager = /** @class */ (function () {
         if (window.ResizeObserver) {
             new ResizeObserver(function () { return _this.zoomOrDimensionChanged(); }).observe(settings.element);
         }
-        if ((_d = this.settings.autoZoom) === null || _d === void 0 ? void 0 : _d.expectedWidth) {
+        if ((_e = this.settings.autoZoom) === null || _e === void 0 ? void 0 : _e.expectedWidth) {
             this.setAutoZoom();
         }
     }

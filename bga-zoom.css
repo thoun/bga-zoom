@@ -4,6 +4,9 @@
 #bga-zoom-wrapper .bga-zoom-inner {
   transform-origin: left top;
 }
+#bga-zoom-wrapper .bga-zoom-inner[data-smooth=true] {
+  transition: transform 0.5s;
+}
 #bga-zoom-wrapper #bga-zoom-controls {
   position: absolute;
   top: 0;

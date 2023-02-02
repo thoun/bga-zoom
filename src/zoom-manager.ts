@@ -53,6 +53,11 @@ interface ZoomManagerSettings {
     element: HTMLElement;
 
     /**
+     * Smooth transition when changing zoom level. Default true.
+     */
+    smooth: boolean;
+
+    /**
      * Default zoom, used at setup. If a zoom if stored in localStorage, the default zoom is ignored.
      */
     defaultZoom?: number;
@@ -134,6 +139,10 @@ class ZoomManager {
         this.wrapElement(this.wrapper, settings.element);
         this.wrapper.appendChild(settings.element);
         settings.element.classList.add('bga-zoom-inner');
+        if (settings.smooth ?? true) {
+            settings.element.dataset.smooth = 'true';
+            settings.element.addEventListener('transitionend', () => this.zoomOrDimensionChanged());
+        }
 
         if (settings.zoomControls?.visible ?? true) {
             this.initZoomControls(settings);

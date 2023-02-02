@@ -4,6 +4,10 @@
   
     .bga-zoom-inner {
       transform-origin: left top;
+
+      &[data-smooth="true"] {
+        transition: transform 0.5s;
+      }
     }
   
     #bga-zoom-controls {
