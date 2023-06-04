@@ -33,3 +33,11 @@ function decreaseBoxCount() {
 function setZoomControlsColor(color) {
     zoomManager.setZoomControlsColor(color);
 }
+
+function changeZoomLevels(zoomLevels) {
+    if (zoomLevels) {
+        zoomManager.setZoomLevels(zoomLevels)
+    } else {
+        zoomManager.setZoomLevels(DEFAULT_ZOOM_LEVELS)
+    }
+}

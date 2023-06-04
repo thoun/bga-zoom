@@ -106,13 +106,20 @@ class ZoomManager {
         return this._zoom;
     }
 
+    /**
+     * Returns the zoom levels
+     */
+    public get zoomLevels(): number[] {
+        return this._zoomLevels;
+    }
+
     private _zoom: number;
+    private _zoomLevels: number[];
 
     private wrapper: HTMLDivElement;
     private zoomControls: HTMLDivElement;
     private zoomOutButton: HTMLButtonElement;
     private zoomInButton: HTMLButtonElement;
-    private zoomLevels: number[];
 
     /**
      * Place the settings.element in a zoom wrapper and init zoomControls.
@@ -124,7 +131,7 @@ class ZoomManager {
             throw new DOMException('You need to set the element to wrap in the zoom element');
         }
 
-        this.zoomLevels = settings.zoomLevels ?? DEFAULT_ZOOM_LEVELS;
+        this._zoomLevels = settings.zoomLevels ?? DEFAULT_ZOOM_LEVELS;
 
         this._zoom = this.settings.defaultZoom || 1;
         if (this.settings.localStorageZoomKey) {
@@ -177,8 +184,8 @@ class ZoomManager {
 
         const expectedWidth = this.settings.autoZoom?.expectedWidth;
         let newZoom = this.zoom;
-        while (newZoom > this.zoomLevels[0] && newZoom > (this.settings.autoZoom?.minZoomLevel ?? 0) && zoomWrapperWidth/newZoom < expectedWidth) {
-            newZoom = this.zoomLevels[this.zoomLevels.indexOf(newZoom) - 1];
+        while (newZoom > this._zoomLevels[0] && newZoom > (this.settings.autoZoom?.minZoomLevel ?? 0) && zoomWrapperWidth/newZoom < expectedWidth) {
+            newZoom = this._zoomLevels[this._zoomLevels.indexOf(newZoom) - 1];
         }
 
         if (this._zoom == newZoom) {
@@ -191,6 +198,23 @@ class ZoomManager {
     }
 
     /**
+     * Sets the available zoomLevels and new zoom to the provided values.
+     * @param zoomLevels the new array of zoomLevels that can be used.
+     * @param newZoom if provided the zoom will be set to this value, if not the last element of the zoomLevels array will be set as the new zoom
+     */
+    public setZoomLevels(zoomLevels: number[], newZoom?: number) {
+        if (!zoomLevels || zoomLevels.length <= 0) {
+            return;
+        }
+
+        this._zoomLevels = zoomLevels;
+
+        const zoomIndex = newZoom && zoomLevels.includes(newZoom) ? this._zoomLevels.indexOf(newZoom) : this._zoomLevels.length - 1;
+
+        this.setZoom(this._zoomLevels[zoomIndex]);
+    }
+
+    /**
      * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
      * @param zoom zool level
      */
@@ -199,8 +223,8 @@ class ZoomManager {
         if (this.settings.localStorageZoomKey) {
             localStorage.setItem(this.settings.localStorageZoomKey, ''+this._zoom);
         }
-        const newIndex = this.zoomLevels.indexOf(this._zoom);
-        this.zoomInButton?.classList.toggle('disabled', newIndex === this.zoomLevels.length - 1);
+        const newIndex = this._zoomLevels.indexOf(this._zoom);
+        this.zoomInButton?.classList.toggle('disabled', newIndex === this._zoomLevels.length - 1);
         this.zoomOutButton?.classList.toggle('disabled', newIndex === 0);
 
         this.settings.element.style.transform = zoom === 1 ? '' : `scale(${zoom})`;
@@ -234,22 +258,22 @@ class ZoomManager {
      * Simulates a click on the Zoom-in button.
      */
     public zoomIn() {
-        if (this._zoom === this.zoomLevels[this.zoomLevels.length - 1]) {
+        if (this._zoom === this._zoomLevels[this._zoomLevels.length - 1]) {
             return;
         }
-        const newIndex = this.zoomLevels.indexOf(this._zoom) + 1;
-        this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
+        const newIndex = this._zoomLevels.indexOf(this._zoom) + 1;
+        this.setZoom(newIndex === -1 ? 1 : this._zoomLevels[newIndex]);
     }
 
     /**
      * Simulates a click on the Zoom-out button.
      */
     public zoomOut() {
-        if (this._zoom === this.zoomLevels[0]) {
+        if (this._zoom === this._zoomLevels[0]) {
             return;
         }
-        const newIndex = this.zoomLevels.indexOf(this._zoom) - 1;
-        this.setZoom(newIndex === -1 ? 1 : this.zoomLevels[newIndex]);
+        const newIndex = this._zoomLevels.indexOf(this._zoom) - 1;
+        this.setZoom(newIndex === -1 ? 1 : this._zoomLevels[newIndex]);
     }
 
     /**
