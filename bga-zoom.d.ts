@@ -87,12 +87,16 @@ declare class ZoomManager {
      * Returns the zoom level
      */
     get zoom(): number;
+    /**
+     * Returns the zoom levels
+     */
+    get zoomLevels(): number[];
     private _zoom;
+    private _zoomLevels;
     private wrapper;
     private zoomControls;
     private zoomOutButton;
     private zoomInButton;
-    private zoomLevels;
     /**
      * Place the settings.element in a zoom wrapper and init zoomControls.
      *
@@ -100,6 +104,12 @@ declare class ZoomManager {
      */
     constructor(settings: ZoomManagerSettings);
     private setAutoZoom;
+    /**
+     * Sets the available zoomLevels and new zoom to the provided values.
+     * @param zoomLevels the new array of zoomLevels that can be used.
+     * @param newZoom if provided the zoom will be set to this value, if not the last element of the zoomLevels array will be set as the new zoom
+     */
+    setZoomLevels(zoomLevels: number[], newZoom?: number): void;
     /**
      * Set the zoom level. Ideally, use a zoom level in the zoomLevels range.
      * @param zoom zool level
