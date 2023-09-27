@@ -55,7 +55,7 @@ interface ZoomManagerSettings {
     /**
      * Smooth transition when changing zoom level. Default true.
      */
-    smooth: boolean;
+    smooth?: boolean;
 
     /**
      * Default zoom, used at setup. If a zoom if stored in localStorage, the default zoom is ignored.
@@ -94,9 +94,35 @@ interface ZoomManagerSettings {
      * This function can be called a lot of times, don't forget to debounce it if used.
      */
     onDimensionsChange?: (zoom: number) => void;
+
+    /**
+     * Throttle time, in ms, for resize events, to avoid event spamming.
+     * Default is 100ms.
+     */
+    throttleTime?: number;
 }
 
 const DEFAULT_ZOOM_LEVELS = [0.25, 0.375, 0.5, 0.625, 0.75, 0.875, 1];
+
+function throttle(callback: Function, delay: number) {
+    let last: number;
+    let timer: number;
+    return function () {
+        const context = this;
+        const now = +new Date();
+        const args = arguments;
+        if (last && now < last + delay) {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                last = now;
+                callback.apply(context, args);
+            }, delay);
+        } else {
+            last = now;
+            callback.apply(context, args);
+        }
+    };
+}
 
 class ZoomManager {
     /**
@@ -113,20 +139,20 @@ class ZoomManager {
         return this._zoomLevels;
     }
 
-    private _zoom: number;
-    private _zoomLevels: number[];
-
-    private wrapper: HTMLDivElement;
-    private zoomControls: HTMLDivElement;
-    private zoomOutButton: HTMLButtonElement;
-    private zoomInButton: HTMLButtonElement;
+    protected _zoom: number;
+    protected _zoomLevels: number[];
+    protected wrapper: HTMLDivElement;
+    protected zoomControls: HTMLDivElement;
+    protected zoomOutButton: HTMLButtonElement;
+    protected zoomInButton: HTMLButtonElement;
+    protected throttleTime: number;
 
     /**
      * Place the settings.element in a zoom wrapper and init zoomControls.
      * 
      * @param settings: a `ZoomManagerSettings` object
      */
-    constructor(private settings: ZoomManagerSettings) {
+    constructor(protected settings: ZoomManagerSettings) {
         if (!settings.element) {
             throw new DOMException('You need to set the element to wrap in the zoom element');
         }
@@ -158,6 +184,8 @@ class ZoomManager {
         if (this._zoom !== 1) {
             this.setZoom(this._zoom);
         }
+
+        this.throttleTime = settings.throttleTime ?? 100;
 
         window.addEventListener('resize', () => {
             this.zoomOrDimensionChanged();
@@ -246,8 +274,17 @@ class ZoomManager {
 
     /**
      * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     * To avoid spamming, a throttle is applied to the method.
      */
-    private zoomOrDimensionChanged() {
+    protected zoomOrDimensionChanged() {
+        throttle(() => this.zoomOrDimensionChangedUnsafe(), this.throttleTime);
+    }
+
+    /**
+     * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     * Unsafe method as this is not protected by throttle. Call `zoomOrDimensionChanged` instead.
+     */
+    protected zoomOrDimensionChangedUnsafe() {
         this.settings.element.style.width = `${this.wrapper.getBoundingClientRect().width / this._zoom}px`;
         this.wrapper.style.height = `${this.settings.element.getBoundingClientRect().height}px`;
 
@@ -289,7 +326,7 @@ class ZoomManager {
      * Set-up the zoom controls
      * @param settings a `ZoomManagerSettings` object.
      */
-    private initZoomControls(settings: ZoomManagerSettings) {
+    protected initZoomControls(settings: ZoomManagerSettings) {
         this.zoomControls = document.createElement('div');
         this.zoomControls.id = 'bga-zoom-controls';
         this.zoomControls.dataset.position = settings.zoomControls?.position ?? 'top-right';
@@ -323,7 +360,7 @@ class ZoomManager {
      * @param wrapper the wrapper element
      * @param element the existing element
      */
-    private wrapElement(wrapper: HTMLElement, element: HTMLElement) {
+    protected wrapElement(wrapper: HTMLElement, element: HTMLElement) {
         element.parentNode.insertBefore(wrapper, element);
         wrapper.appendChild(element);
     }

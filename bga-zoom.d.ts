@@ -47,7 +47,7 @@ interface ZoomManagerSettings {
     /**
      * Smooth transition when changing zoom level. Default true.
      */
-    smooth: boolean;
+    smooth?: boolean;
     /**
      * Default zoom, used at setup. If a zoom if stored in localStorage, the default zoom is ignored.
      */
@@ -79,10 +79,16 @@ interface ZoomManagerSettings {
      * This function can be called a lot of times, don't forget to debounce it if used.
      */
     onDimensionsChange?: (zoom: number) => void;
+    /**
+     * Throttle time, in ms, for resize events, to avoid event spamming.
+     * Default is 100ms.
+     */
+    throttleTime?: number;
 }
 declare const DEFAULT_ZOOM_LEVELS: number[];
+declare function throttle(callback: Function, delay: number): () => void;
 declare class ZoomManager {
-    private settings;
+    protected settings: ZoomManagerSettings;
     /**
      * Returns the zoom level
      */
@@ -91,12 +97,13 @@ declare class ZoomManager {
      * Returns the zoom levels
      */
     get zoomLevels(): number[];
-    private _zoom;
-    private _zoomLevels;
-    private wrapper;
-    private zoomControls;
-    private zoomOutButton;
-    private zoomInButton;
+    protected _zoom: number;
+    protected _zoomLevels: number[];
+    protected wrapper: HTMLDivElement;
+    protected zoomControls: HTMLDivElement;
+    protected zoomOutButton: HTMLButtonElement;
+    protected zoomInButton: HTMLButtonElement;
+    protected throttleTime: number;
     /**
      * Place the settings.element in a zoom wrapper and init zoomControls.
      *
@@ -122,8 +129,14 @@ declare class ZoomManager {
     manualHeightUpdate(): void;
     /**
      * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     * To avoid spamming, a throttle is applied to the method.
      */
-    private zoomOrDimensionChanged;
+    protected zoomOrDimensionChanged(): void;
+    /**
+     * Everytime the element dimensions changes, we update the style. And call the optional callback.
+     * Unsafe method as this is not protected by throttle. Call `zoomOrDimensionChanged` instead.
+     */
+    protected zoomOrDimensionChangedUnsafe(): void;
     /**
      * Simulates a click on the Zoom-in button.
      */
@@ -140,12 +153,12 @@ declare class ZoomManager {
      * Set-up the zoom controls
      * @param settings a `ZoomManagerSettings` object.
      */
-    private initZoomControls;
+    protected initZoomControls(settings: ZoomManagerSettings): void;
     /**
      * Wraps an element around an existing DOM element
      * @param wrapper the wrapper element
      * @param element the existing element
      */
-    private wrapElement;
+    protected wrapElement(wrapper: HTMLElement, element: HTMLElement): void;
 }
 declare const define: any;
