@@ -141,7 +141,7 @@ var ZoomManager = /** @class */ (function () {
         (_b = this.zoomOutButton) === null || _b === void 0 ? void 0 : _b.classList.toggle('disabled', newIndex === 0);
         this.settings.element.style.transform = zoom === 1 ? '' : "scale(".concat(zoom, ")");
         (_d = (_c = this.settings).onZoomChange) === null || _d === void 0 ? void 0 : _d.call(_c, this._zoom);
-        this.zoomOrDimensionChanged();
+        this.zoomOrDimensionChangedUnsafe();
     };
     /**
      * Call this method for the browsers not supporting ResizeObserver, everytime the table height changes, if you know it.

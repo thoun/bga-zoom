@@ -259,7 +259,7 @@ class ZoomManager {
 
         this.settings.onZoomChange?.(this._zoom);
 
-        this.zoomOrDimensionChanged();
+        this.zoomOrDimensionChangedUnsafe();
     }
 
     /**
