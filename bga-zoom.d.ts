@@ -87,6 +87,10 @@ interface ZoomManagerSettings {
 }
 declare const DEFAULT_ZOOM_LEVELS: number[];
 declare function throttle(callback: Function, delay: number): () => void;
+declare const advThrottle: (func: any, delay: any, options?: {
+    leading: boolean;
+    trailing: boolean;
+}) => (...args: any[]) => void;
 declare class ZoomManager {
     protected settings: ZoomManagerSettings;
     /**
@@ -129,14 +133,9 @@ declare class ZoomManager {
     manualHeightUpdate(): void;
     /**
      * Everytime the element dimensions changes, we update the style. And call the optional callback.
-     * To avoid spamming, a throttle is applied to the method.
+     * Unsafe method as this is not protected by throttle. Surround with  `advThrottle(() => this.zoomOrDimensionChanged(), this.throttleTime, { leading: true, trailing: true, })` to avoid spamming recomputation.
      */
     protected zoomOrDimensionChanged(): void;
-    /**
-     * Everytime the element dimensions changes, we update the style. And call the optional callback.
-     * Unsafe method as this is not protected by throttle. Call `zoomOrDimensionChanged` instead.
-     */
-    protected zoomOrDimensionChangedUnsafe(): void;
     /**
      * Simulates a click on the Zoom-in button.
      */

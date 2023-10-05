@@ -124,6 +124,41 @@ function throttle(callback: Function, delay: number) {
     };
 }
 
+const advThrottle = (func, delay, options = { leading: true, trailing: false }) => {
+    let timer = null,
+      lastRan = null,
+      trailingArgs = null;
+  
+    return function (...args) {
+  
+      if (timer) { //called within cooldown period
+        lastRan = this; //update context
+        trailingArgs = args; //save for later
+        return;
+      } 
+  
+      if (options.leading) {// if leading
+        func.call(this, ...args) //call the 1st instance
+      } else { // else it's trailing
+        lastRan = this; //update context
+        trailingArgs = args; //save for later
+      }
+  
+      const coolDownPeriodComplete = () => {
+        if (options.trailing && trailingArgs) { // if trailing and the trailing args exist
+          func.call(lastRan, ...trailingArgs); //invoke the instance with stored context "lastRan"
+          lastRan = null; //reset the status of lastRan
+          trailingArgs = null; //reset trailing arguments
+          timer = setTimeout(coolDownPeriodComplete, delay) //clear the timout
+        } else {
+          timer = null; // reset timer
+        }
+      }
+  
+      timer = setTimeout(coolDownPeriodComplete, delay);
+    }
+  }
+
 class ZoomManager {
     /**
      * Returns the zoom level
@@ -174,7 +209,7 @@ class ZoomManager {
         settings.element.classList.add('bga-zoom-inner');
         if (settings.smooth ?? true) {
             settings.element.dataset.smooth = 'true';
-            settings.element.addEventListener('transitionend', () => this.zoomOrDimensionChanged());
+            settings.element.addEventListener('transitionend', advThrottle(() => this.zoomOrDimensionChanged(), this.throttleTime, { leading: true, trailing: true, }));
         }
 
         if (settings.zoomControls?.visible ?? true) {
@@ -187,14 +222,14 @@ class ZoomManager {
 
         this.throttleTime = settings.throttleTime ?? 100;
 
-        window.addEventListener('resize', () => {
+        window.addEventListener('resize', advThrottle(() => {
             this.zoomOrDimensionChanged();
             if (this.settings.autoZoom?.expectedWidth) {
                 this.setAutoZoom();
             }
-        });
+        }, this.throttleTime, { leading: true, trailing: true, }));
         if (window.ResizeObserver) {
-            new ResizeObserver(() => this.zoomOrDimensionChanged()).observe(settings.element);
+            new ResizeObserver(advThrottle(() => this.zoomOrDimensionChanged(), this.throttleTime, { leading: true, trailing: true, })).observe(settings.element);
         }
 
         if (this.settings.autoZoom?.expectedWidth) {
@@ -259,7 +294,7 @@ class ZoomManager {
 
         this.settings.onZoomChange?.(this._zoom);
 
-        this.zoomOrDimensionChangedUnsafe();
+        this.zoomOrDimensionChanged();
     }
 
     /**
@@ -274,17 +309,9 @@ class ZoomManager {
 
     /**
      * Everytime the element dimensions changes, we update the style. And call the optional callback.
-     * To avoid spamming, a throttle is applied to the method.
+     * Unsafe method as this is not protected by throttle. Surround with  `advThrottle(() => this.zoomOrDimensionChanged(), this.throttleTime, { leading: true, trailing: true, })` to avoid spamming recomputation.
      */
     protected zoomOrDimensionChanged() {
-        throttle(() => this.zoomOrDimensionChangedUnsafe(), this.throttleTime);
-    }
-
-    /**
-     * Everytime the element dimensions changes, we update the style. And call the optional callback.
-     * Unsafe method as this is not protected by throttle. Call `zoomOrDimensionChanged` instead.
-     */
-    protected zoomOrDimensionChangedUnsafe() {
         this.settings.element.style.width = `${this.wrapper.getBoundingClientRect().width / this._zoom}px`;
         this.wrapper.style.height = `${this.settings.element.getBoundingClientRect().height}px`;
 
