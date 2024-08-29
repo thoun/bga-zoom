@@ -312,8 +312,8 @@ class ZoomManager {
      * Unsafe method as this is not protected by throttle. Surround with  `advThrottle(() => this.zoomOrDimensionChanged(), this.throttleTime, { leading: true, trailing: true, })` to avoid spamming recomputation.
      */
     protected zoomOrDimensionChanged() {
-        this.settings.element.style.width = `${this.wrapper.getBoundingClientRect().width / this._zoom}px`;
-        this.wrapper.style.height = `${this.settings.element.getBoundingClientRect().height}px`;
+        this.settings.element.style.width = `${this.wrapper.offsetWidth / this._zoom}px`;
+        this.wrapper.style.height = `${this.settings.element.offsetHeight}px`;
 
         this.settings.onDimensionsChange?.(this._zoom);
     }

@@ -203,8 +203,8 @@ var ZoomManager = /** @class */ (function () {
      */
     ZoomManager.prototype.zoomOrDimensionChanged = function () {
         var _a, _b;
-        this.settings.element.style.width = "".concat(this.wrapper.getBoundingClientRect().width / this._zoom, "px");
-        this.wrapper.style.height = "".concat(this.settings.element.getBoundingClientRect().height, "px");
+        this.settings.element.style.width = "".concat(this.wrapper.offsetWidth / this._zoom, "px");
+        this.wrapper.style.height = "".concat(this.settings.element.offsetHeight, "px");
         (_b = (_a = this.settings).onDimensionsChange) === null || _b === void 0 ? void 0 : _b.call(_a, this._zoom);
     };
     /**
