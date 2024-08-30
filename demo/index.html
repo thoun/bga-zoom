@@ -12,11 +12,15 @@
     <body>
         <h1>BGA Header</h1>
 
-        <div id="game-table">
-            Your table
-            
-            <button type="button" onclick="increaseBoxCount()">Increase box count</button>
-            <button type="button" onclick="decreaseBoxCount()">Decrease box count</button>
+        <input type="number" step="0.1" value="1" id="scale" onchange="document.getElementById('page-content').style.zoom = this.value;">
+
+        <div id="page-content">
+            <div id="game-table">
+                Your table
+                
+                <button type="button" onclick="increaseBoxCount()">Increase box count</button>
+                <button type="button" onclick="decreaseBoxCount()">Decrease box count</button>
+            </div>
         </div>
 
         <button type="button" onclick="setZoomControlsColor('black')">Set color to black</button>

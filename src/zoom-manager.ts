@@ -313,7 +313,7 @@ class ZoomManager {
      */
     protected zoomOrDimensionChanged() {
         this.settings.element.style.width = `${this.wrapper.offsetWidth / this._zoom}px`;
-        this.wrapper.style.height = `${this.settings.element.offsetHeight}px`;
+        this.wrapper.style.height = `${this.settings.element.offsetHeight * this._zoom}px`;
 
         this.settings.onDimensionsChange?.(this._zoom);
     }
